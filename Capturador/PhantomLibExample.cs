@@ -79,8 +79,7 @@ namespace Capturador
 
                                 Phantom.MessageDataEIMONanoAccel data = (Phantom.MessageDataEIMONanoAccel)generic_data;
 
-                                String[] line1 = new string [data.channel1.Length];
-                                String[] contenido = new string [1];
+                                String[] contenido = new string[1];
 
                                 string nombre_archivo;
 
@@ -95,87 +94,111 @@ namespace Capturador
                                 }
 
 
-                                /*if(data.channel2 != null)
+
+                                // Para Monoaxial X
+                                else if (data.channel2 == null && data.channel3 == null)
                                 {
-                                    String[] line2 = new string [data.channel2.Length];
-                                    String[] line3 = new string [data.channel3.Length];
-                                    
+                                    String[] line1 = new string[data.channel1.Length + 1];
 
                                     for (int i = 0; i < data.channel1.Length; i++)
                                     {
                                         line1[i] = (data.channel1[i] * data.calibration).ToString();
-                                        line2[i] = (data.channel2[i] * data.calibration).ToString();
-                                        line3[i] = (data.channel3[i] * data.calibration).ToString();
                                     }
-
-                                    name[0]=data.phantom_code + " - " + data.realnodetime.ToString() + " - Sample Rate = " + data.sample_rate.ToString();
-                                
-
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\X" + " - " + data.phantom_code+".csv", line1);
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Y" + " - " + data.phantom_code+".csv", line2);
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Z" + " - " + data.phantom_code+".csv", line3);
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Datos"+ " - " + data.phantom_code+".csv", name);
-                                }*/
-
-                                if (data.channel2 != null)
-                                {
-                                    String[] line2 = new string[data.channel2.Length];
-                                    String[] line3 = new string[data.channel3.Length];
-                                    
-
-                                    for (int i = 0; i < data.channel1.Length; i++)
-                                    {
-                                        line1[i] = (data.channel1[i] * data.calibration).ToString();
-                                        line2[i] = (data.channel2[i] * data.calibration).ToString();
-                                        line3[i] = (data.channel3[i] * data.calibration).ToString();
-                                    }
-
-                                    contenido[0] = data.sample_rate.ToString(); //Contenido de Sample rate.csv
-
-                                    nombre_archivo = data.realnodetime.ToString().Replace('/', '-');
-                                    nombre_archivo = nombre_archivo.Replace(':', ',');
-                                  
-
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\X" + " - " + data.phantom_code + nombre_archivo + ".csv", line1);
-                                        s3client.UploadDataAsync("X - " + data.phantom_code + nombre_archivo + ".csv", line1);
-
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Y" + " - " + data.phantom_code + nombre_archivo + ".csv", line2);
-                                        s3client.UploadDataAsync("Y - " + data.phantom_code + nombre_archivo + ".csv", line1);
-
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Z" + " - " + data.phantom_code + nombre_archivo + ".csv", line3);
-                                        s3client.UploadDataAsync("Z - " + data.phantom_code + nombre_archivo + ".csv", line1);
-
-
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Sample rate" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", contenido);
-
-                                    dbClient.UploadReadingMultiAxial(data, nombre_archivo, id_punto);
-
-                                }
-
-                                else
-                                {
-                                    for (int i = 0; i < data.channel1.Length; i++)
-                                    {
-                                        line1[i] = (data.channel1[i] * data.calibration).ToString();
-                                    }
-                                    contenido[0] = data.sample_rate.ToString(); //Contenido de Sample rate.csv
+                                    line1[data.channel1.Length] = data.sample_rate.ToString(); //Contenido de Sample rate en el último elemento.
 
                                     nombre_archivo = data.realnodetime.ToString().Replace('/', '-');
                                     nombre_archivo = nombre_archivo.Replace(':', ',');
 
                                     System.IO.File.WriteAllLines(@"C:\Ruta\X" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line1);
                                     s3client.UploadDataAsync("X - " + data.phantom_code + nombre_archivo + ".csv", line1);
-                                    System.IO.File.WriteAllLines(@"C:\Ruta\Sample rate"+ " - " + data.phantom_code + " " + nombre_archivo + ".csv", contenido);
 
                                     dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto);
+
+                                }
+
+                                // Para Monoaxial Y
+                                else if (data.channel1 == null && data.channel3 == null)
+                                {
+                                    String[] line2 = new string[data.channel2.Length + 1];
+
+                                    for (int i = 0; i < data.channel2.Length; i++)
+                                    {
+                                        line2[i] = (data.channel2[i] * data.calibration).ToString();
+                                    }
+                                    line2[data.channel2.Length] = data.sample_rate.ToString(); //Contenido de Sample rate en el último elemento.
+
+                                    nombre_archivo = data.realnodetime.ToString().Replace('/', '-');
+                                    nombre_archivo = nombre_archivo.Replace(':', ',');
+
+                                    System.IO.File.WriteAllLines(@"C:\Ruta\Y" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line2);
+                                    s3client.UploadDataAsync("Y - " + data.phantom_code + nombre_archivo + ".csv", line2);
+
+                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto);
+
+                                }
+
+                                // Para Monoaxial Z
+                                else if (data.channel1 == null && data.channel2 == null)
+                                {
+                                    String[] line3 = new string[data.channel3.Length + 1];
+
+                                    for (int i = 0; i < data.channel3.Length; i++)
+                                    {
+                                        line3[i] = (data.channel3[i] * data.calibration).ToString();
+                                    }
+                                    line3[data.channel3.Length] = data.sample_rate.ToString(); //Contenido de Sample rate en el último elemento.
+
+                                    nombre_archivo = data.realnodetime.ToString().Replace('/', '-');
+                                    nombre_archivo = nombre_archivo.Replace(':', ',');
+
+                                    System.IO.File.WriteAllLines(@"C:\Ruta\Z" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line3);
+                                    s3client.UploadDataAsync("Z - " + data.phantom_code + nombre_archivo + ".csv", line3);
+
+                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto);
+
+                                }
+
+                                // Para triaxial
+                                else
+                                {
+                                    String[] line1 = new string[data.channel1.Length];
+                                    String[] line2 = new string[data.channel2.Length];
+                                    String[] line3 = new string[data.channel3.Length];
+
+
+                                    for (int i = 0; i < data.channel1.Length; i++)
+                                    {
+                                        line1[i] = (data.channel1[i] * data.calibration).ToString();
+                                        line2[i] = (data.channel2[i] * data.calibration).ToString();
+                                        line3[i] = (data.channel3[i] * data.calibration).ToString();
+                                    }
+
+                                    contenido[0] = data.sample_rate.ToString(); //Contenido de Sample rate.csv
+
+                                    nombre_archivo = data.realnodetime.ToString().Replace('/', '-');
+                                    nombre_archivo = nombre_archivo.Replace(':', ',');
+
+
+                                    System.IO.File.WriteAllLines(@"C:\Ruta\X" + " - " + data.phantom_code + nombre_archivo + ".csv", line1);
+                                    s3client.UploadDataAsync("X - " + data.phantom_code + nombre_archivo + ".csv", line1);
+
+                                    System.IO.File.WriteAllLines(@"C:\Ruta\Y" + " - " + data.phantom_code + nombre_archivo + ".csv", line2);
+                                    s3client.UploadDataAsync("Y - " + data.phantom_code + nombre_archivo + ".csv", line2);
+
+                                    System.IO.File.WriteAllLines(@"C:\Ruta\Z" + " - " + data.phantom_code + nombre_archivo + ".csv", line3);
+                                    s3client.UploadDataAsync("Z - " + data.phantom_code + nombre_archivo + ".csv", line3);
+
+
+                                    dbClient.UploadReadingMultiAxial(data, nombre_archivo, id_punto);
                                 }
 
 
 
                                 Console.WriteLine("Data from " + data.phantom_code); //multiplicar cada canal por la calibración resulta en el valor de vibración en G (9.8m/s²).
-                                
+
 
                                 break;
+
                             }
                         case Phantom.Messages.RECEIVED_PHANTOM_TEMP_DATA: // se recibe la tempreratura
                             {
