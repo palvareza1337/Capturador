@@ -68,8 +68,8 @@ namespace Capturador
                             {
                                 Phantom.MessageDataIDInfo data = (Phantom.MessageDataIDInfo)generic_data;
 
-                                phantom_to_ip[data.phantom_code] = data.ip_address;                                
-                               
+                                phantom_to_ip[data.phantom_code] = data.ip_address;
+
                                 Console.WriteLine("Id from " + data.phantom_code + " " + data.ip_address);
 
                                 break;
@@ -110,9 +110,12 @@ namespace Capturador
                                     nombre_archivo = nombre_archivo.Replace(':', ',');
 
                                     System.IO.File.WriteAllLines(@"C:\Ruta\X" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line1);
+
                                     s3client.UploadDataAsync("X - " + data.phantom_code + nombre_archivo + ".csv", line1);
 
-                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto);
+                                    nombre_archivo = "X - " + data.phantom_code + nombre_archivo + ".csv";
+
+                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto, "X");
 
                                 }
 
@@ -133,7 +136,9 @@ namespace Capturador
                                     System.IO.File.WriteAllLines(@"C:\Ruta\Y" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line2);
                                     s3client.UploadDataAsync("Y - " + data.phantom_code + nombre_archivo + ".csv", line2);
 
-                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto);
+                                    nombre_archivo = "Y - " + data.phantom_code + nombre_archivo + ".csv";
+
+                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto, "Y");
 
                                 }
 
@@ -154,7 +159,9 @@ namespace Capturador
                                     System.IO.File.WriteAllLines(@"C:\Ruta\Z" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line3);
                                     s3client.UploadDataAsync("Z - " + data.phantom_code + nombre_archivo + ".csv", line3);
 
-                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto);
+                                    nombre_archivo = data.phantom_code + nombre_archivo;
+
+                                    dbClient.UploadReadingMonoAxial(data, nombre_archivo, id_punto, "Z");
 
                                 }
 
@@ -218,7 +225,7 @@ namespace Capturador
 
                                 break;
                             }
-                        case Phantom.Messages.RECEIVED_PHANTOM_ACCEL_SETTINGS: 
+                        case Phantom.Messages.RECEIVED_PHANTOM_ACCEL_SETTINGS:
                             {
                                 Phantom.MessageEIMONanoAccelSettings data = (Phantom.MessageEIMONanoAccelSettings)generic_data;
 
