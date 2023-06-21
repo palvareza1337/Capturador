@@ -20,7 +20,8 @@ namespace Capturador
             connection.Open();
         }
 
-        public SqlConnection(string host, string database, string user, string password, string port="3306") {
+        public SqlConnection(string host, string database, string user, string password, string port = "3306")
+        {
             connection = new MySqlConnection($"Server={host};Port={port};Database={database};Uid={user};Password={password}");
             connection.Open();
         }
@@ -40,22 +41,50 @@ namespace Capturador
             cmd.Parameters.AddWithValue("@ch2", @"Y - " + data.phantom_code + nombre_archivo + ".csv");
             cmd.Parameters.AddWithValue("@ch3", @"Z - " + data.phantom_code + nombre_archivo + ".csv");
 
-            try { await cmd.ExecuteNonQueryAsync(); cmd.Dispose(); return true;} 
-            catch (Exception fallo){ Console.WriteLine(fallo.ToString()); cmd.Dispose(); return false; }
+            try { await cmd.ExecuteNonQueryAsync(); cmd.Dispose(); return true; }
+            catch (Exception fallo) { Console.WriteLine(fallo.ToString()); cmd.Dispose(); return false; }
         }
 
-        public async Task<bool> UploadReadingMonoAxial(Phantom.MessageDataEIMONanoAccel data, string nombre_archivo, int id_punto)
+        public async Task<bool> UploadReadingMonoAxial(Phantom.MessageDataEIMONanoAccel data, string nombre_archivo, int id_punto, string eje)
         {
             MySqlCommand cmd = connection.CreateCommand();
 
-            cmd.CommandText = "INSERT INTO lectura VALUES (@sensorid, @date, @id_punto, @rate, @temp, @ch1, NULL, NULL, 0, NULL, NULL);";
+            if (eje == "X")
+            {
+                cmd.CommandText = "INSERT INTO lectura VALUES (@sensorid, @date, @id_punto, @rate, @temp, @ch1, NULL, NULL, 0, NULL, NULL);";
+            }
+
+            if (eje == "Y")
+            {
+                cmd.CommandText = "INSERT INTO lectura VALUES (@sensorid, @date, @id_punto, @rate, @temp, NULL, @ch2, NULL, 0, NULL, NULL);";
+            }
+
+            if (eje == "Z")
+            {
+                cmd.CommandText = "INSERT INTO lectura VALUES (@sensorid, @date, @id_punto, @rate, @temp, NULL, NULL, @ch3, 0, NULL, NULL);";
+            }
+
 
             cmd.Parameters.Add("@sensorid", MySqlDbType.Int64).Value = data.phantom_code; //forced to one
             cmd.Parameters.Add("@date", MySqlDbType.DateTime).Value = data.realnodetime;
             cmd.Parameters.Add("@id_punto", MySqlDbType.Int64).Value = id_punto;
             cmd.Parameters.Add("@rate", MySqlDbType.Int64).Value = data.sample_rate;
             cmd.Parameters.Add("@temp", MySqlDbType.Float).Value = data.temperature;
-            cmd.Parameters.AddWithValue("@ch1", @"X - " + data.phantom_code + nombre_archivo + ".csv");
+            // cmd.Parameters.AddWithValue("@ch1", @"X - " + data.phantom_code + nombre_archivo + ".csv");
+            if (eje == "X")
+            {
+                cmd.Parameters.AddWithValue("@ch1", @"X - " + nombre_archivo + ".csv");
+            }
+
+            if (eje == "Y")
+            {
+                cmd.Parameters.AddWithValue("@ch2", @"Y - " + nombre_archivo + ".csv");
+            }
+
+            if (eje == "Z")
+            {
+                cmd.Parameters.AddWithValue("@ch3", @"Z - " + nombre_archivo + ".csv");
+            }
 
 
             try { await cmd.ExecuteNonQueryAsync(); cmd.Dispose(); return true; }
