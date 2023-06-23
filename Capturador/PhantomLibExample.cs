@@ -157,7 +157,7 @@ namespace Capturador
                                     nombre_archivo = nombre_archivo.Replace(':', ',');
 
                                     System.IO.File.WriteAllLines(@"C:\Ruta\Z" + " - " + data.phantom_code + " " + nombre_archivo + ".csv", line3);
-                                    s3client.UploadDataAsync("Z - " + data.phantom_code + nombre_archivo + ".csv", line3);
+                                    s3client.UploadDataAsync("Z - " + data.phantom_code + nombre_archivo + ".csv", line3); 
 
                                     nombre_archivo = data.phantom_code + nombre_archivo;
 
