@@ -20,12 +20,37 @@ namespace Capturador
             connection.Open();
         }
 
+
+
+        //----------------------------------------
+
         public SqlConnection(string host, string database, string user, string password, string port = "3306")
         {
-            connection = new MySqlConnection($"Server={host};Port={port};Database={database};Uid={user};Password={password}");
-            connection.Open();
+            bool isConnected = false;
+            while (!isConnected)
+            {
+                try
+                {
+                    // Verificar la conexión a Internet aquí
+
+                    connection = new MySqlConnection($"Server={host};Port={port};Database={database};Uid={user};Password={password}");
+                    connection.Open();
+
+                    isConnected = true; // Si la conexión se establece correctamente, establecemos isConnected en true para salir del bucle y continuar con las operaciones en la base de datos
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al establecer la conexión a la base de datos: " + ex.Message);
+                    Console.WriteLine("Reintentando la conexión en 5 segundos...");
+                    Thread.Sleep(5000); // Esperar 5 segundos antes de volver a intentar la conexión
+                }
+            }
+
+            // Realizar las operaciones en la base de datos
         }
 
+
+        //----------------------------------------
         public async Task<bool> UploadReadingMultiAxial(Phantom.MessageDataEIMONanoAccel data, string nombre_archivo, int id_punto)
         {
             MySqlCommand cmd = connection.CreateCommand();
